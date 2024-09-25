@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
-      <h3 class="title">湖南省体育局产业协会</h3>
+      <h3 class="title">仓库物流管理系统</h3>
       <el-form-item prop="username">
         <el-input
           v-model="loginForm.username"
@@ -59,7 +59,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2023 zhengqi.vip All Rights Reserved.</span>
+      <span>Copyright © 2023 user.vip All Rights Reserved.</span>
     </div>
   </div>
 </template>
@@ -168,7 +168,7 @@ getCookie();
 .login-form {
   border-radius: 6px;
   background: #ffffff;
-  width: 26%;
+  width: 24%;
   padding: 30px 30px 10px 30px;
   .el-input {
     height: 100%;

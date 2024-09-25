@@ -25,7 +25,7 @@ defineProps({
   }
 })
 
-const title = ref('湖南省体育局产业协会');
+const title = ref('仓库物流管理系统');
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);
 </script>
