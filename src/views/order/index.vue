@@ -208,7 +208,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="退款状态" prop="aftersaleStatus">
-                    <el-select v-model="form.aftersaleStatus" placeholder="退款状态" clearable style="width: 280px">
+                    <el-select v-model="form.aftersaleStatus" placeholder="退款状态" clearable style="width: 280px" :disabled="form.id">
                         <el-option
                                 label="无售后或售后关闭"
                                 value="1"
@@ -228,31 +228,31 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="物流公司" prop="deliveryCompany">
-                    <el-input v-model="form.deliveryCompany" placeholder="物流公司" style="width: 280px;"/>
+                    <el-input v-model="form.deliveryCompany" placeholder="物流公司" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
                 <el-form-item label="物流单号" prop="deliverySn">
-                    <el-input v-model="form.deliverySn" placeholder="物流单号" style="width: 280px;"/>
+                    <el-input v-model="form.deliverySn" placeholder="物流单号" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
                 <el-form-item label="收货人姓名" prop="receiverName">
-                    <el-input v-model="form.receiverName" placeholder="收货人姓名" style="width: 280px;"/>
+                    <el-input v-model="form.receiverName" placeholder="收货人姓名" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
                 <el-form-item label="收货人电话" prop="receiverPhone">
-                    <el-input v-model="form.receiverPhone" placeholder="收货人电话" style="width: 280px;"/>
+                    <el-input v-model="form.receiverPhone" placeholder="收货人电话" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
                 <el-form-item label="收货人邮编" prop="receiverPostCode">
-                    <el-input v-model="form.receiverPostCode" placeholder="收货人邮编" style="width: 280px;"/>
+                    <el-input v-model="form.receiverPostCode" placeholder="收货人邮编" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
                 <el-form-item label="详细地址" prop="receiverDetailAddress">
-                    <el-input v-model="form.receiverDetailAddress" placeholder="详细地址" style="width: 280px;"/>
+                    <el-input v-model="form.receiverDetailAddress" placeholder="详细地址" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
                 <el-form-item label="订单备注" prop="note">
-                    <el-input v-model="form.note" placeholder="订单备注" style="width: 280px;"/>
+                    <el-input v-model="form.note" placeholder="订单备注" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
                 <el-form-item label="商家备注" prop="merchantNote">
-                    <el-input v-model="form.merchantNote" placeholder="商家备注" style="width: 280px;"/>
+                    <el-input v-model="form.merchantNote" placeholder="商家备注" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
                 <el-form-item label="确认收货状态" prop="confirmStatus">
-                    <el-select v-model="form.confirmStatus" placeholder="确认收货状态" clearable style="width: 280px">
+                    <el-select v-model="form.confirmStatus" placeholder="确认收货状态" clearable style="width: 280px" :disabled="form.id">
                         <el-option
                                 label="未确认"
                                 value="0"
@@ -265,6 +265,7 @@
                 </el-form-item>
                 <el-form-item label="支付时间" prop="paymentTime" :disabled="form.id">
                     <el-date-picker
+                            disabled
                             v-model="form.paymentTime"
                             type="datetime"
                             placeholder="支付时间"
@@ -275,6 +276,7 @@
                 </el-form-item>
                 <el-form-item label="发货时间" prop="deliveryTime">
                     <el-date-picker
+                            disabled
                             v-model="form.deliveryTime"
                             type="datetime"
                             placeholder="发货时间"
@@ -285,6 +287,7 @@
                 </el-form-item>
                 <el-form-item label="确认收货时间" prop="receiveTime">
                     <el-date-picker
+                            disabled
                             v-model="form.receiveTime"
                             type="datetime"
                             placeholder="确认收货时间"
