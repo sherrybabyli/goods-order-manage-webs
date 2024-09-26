@@ -58,7 +58,7 @@ const props = defineProps({
 	},
 	uploadURL: {
 		type: String,
-		default: '/resource/oss/upload',
+		default: '/sysAttachment/add',
 	},
 	disabled: {
 		type: Boolean,
@@ -122,7 +122,7 @@ const init = reactive({
 					.post(baseURL + props.uploadURL, params, { headers: headers.value })
 					.then(res => {
 						if (res.data.code === 200) {
-							resolve(res.data.data.url);
+							resolve('http://114.132.245.12:7979/'+res.data.data.url);
 						} else {
 							reject('上传失败');
 						}
