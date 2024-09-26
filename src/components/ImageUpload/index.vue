@@ -1,53 +1,55 @@
 <template>
-  <div class="component-upload-image">
-    <el-upload
-            multiple
-            :action="uploadImgUrl"
-            list-type="picture-card"
-            :on-success="handleUploadSuccess"
-            :before-upload="handleBeforeUpload"
-            :limit="limit"
-            :on-error="handleUploadError"
-            :on-exceed="handleExceed"
-            ref="imageUpload"
-            :before-remove="handleDelete"
-            :show-file-list="true"
-            :headers="headers"
-            :file-list="fileList"
-            :on-preview="handlePictureCardPreview"
-            :class="{ hide: fileList.length >= limit }"
-    >
-      <el-icon class="avatar-uploader-icon"><plus /></el-icon>
-    </el-upload>
-    <!-- 上传提示 -->
-    <div class="el-upload__tip" v-if="showTip">
-      请上传
-      <template v-if="fileSize">
-        大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b>
-      </template>
-      <template v-if="fileType">
-        格式为 <b style="color: #f56c6c">{{ fileType.join("/") }}</b>
-      </template>
-      的文件
-    </div>
+    <div class="component-upload-image">
+        <el-upload
+                multiple
+                :action="uploadImgUrl"
+                list-type="picture-card"
+                :on-success="handleUploadSuccess"
+                :before-upload="handleBeforeUpload"
+                :limit="limit"
+                :on-error="handleUploadError"
+                :on-exceed="handleExceed"
+                ref="imageUpload"
+                :before-remove="handleDelete"
+                :show-file-list="true"
+                :headers="headers"
+                :file-list="fileList"
+                :on-preview="handlePictureCardPreview"
+                :class="{ hide: fileList.length >= limit }"
+        >
+            <el-icon class="avatar-uploader-icon">
+                <plus/>
+            </el-icon>
+        </el-upload>
+        <!-- 上传提示 -->
+        <div class="el-upload__tip" v-if="showTip">
+            请上传
+            <template v-if="fileSize">
+                大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b>
+            </template>
+            <template v-if="fileType">
+                格式为 <b style="color: #f56c6c">{{ fileType.join("/") }}</b>
+            </template>
+            的文件
+        </div>
 
-    <el-dialog
-            v-model="dialogVisible"
-            title="预览"
-            width="800px"
-            append-to-body
-    >
-      <img
-              :src="dialogImageUrl"
-              style="display: block; max-width: 100%; margin: 0 auto"
-      />
-    </el-dialog>
-  </div>
+        <el-dialog
+                v-model="dialogVisible"
+                title="预览"
+                width="800px"
+                append-to-body
+        >
+            <img
+                    :src="dialogImageUrl"
+                    style="display: block; max-width: 100%; margin: 0 auto"
+            />
+        </el-dialog>
+    </div>
 </template>
 
 <script setup>
-    import { getToken } from "@/utils/auth";
-    import { listByIds, delOss } from "@/api/system/oss";
+    import {getToken} from "@/utils/auth";
+    import {delOss, listByIds} from "@/api/system/oss";
 
     const props = defineProps({
         modelValue: [String, Object, Array],
@@ -73,15 +75,15 @@
         },
     });
 
-    const { proxy } = getCurrentInstance();
+    const {proxy} = getCurrentInstance();
     const emit = defineEmits();
     const number = ref(0);
     const uploadList = ref([]);
     const dialogImageUrl = ref("");
     const dialogVisible = ref(false);
     const baseUrl = import.meta.env.VITE_APP_BASE_API;
-    const uploadImgUrl = ref(baseUrl + "/resource/oss/upload"); // 上传的图片服务器地址
-    const headers = ref({ Authorization: "Bearer " + getToken() });
+    const uploadImgUrl = ref(baseUrl + "/sysAttachment/add"); // 上传的图片服务器地址
+    const headers = ref({Authorization: "Bearer " + getToken()});
     const fileList = ref([]);
     const showTip = computed(
         () => props.isShowTip && (props.fileType || props.fileSize)
@@ -101,14 +103,18 @@
             // 然后将数组转为对象数组
             fileList.value = list.map(item => {
                 // 此处name使用ossId 防止删除出现重名
-                item = { name: item.ossId, url: item.url, ossId: item.ossId };
+                item = {
+                    name: item.ossId,
+                    url: item.url.indexOf(baseUrl) > -1 ? item.url : baseUrl + item.url,
+                    ossId: item.ossId
+                };
                 return item;
             });
         } else {
             fileList.value = [];
             return [];
         }
-    },{ deep: true, immediate: true });
+    }, {deep: true, immediate: true});
 
     // 上传前loading加载
     function handleBeforeUpload(file) {
@@ -151,7 +157,11 @@
     // 上传成功回调
     function handleUploadSuccess(res, file) {
         if (res.code === 200) {
-            uploadList.value.push({ name: res.data.fileName, url: res.data.url, ossId: res.data.ossId });
+            uploadList.value.push({
+                name: res.data.fileName,
+                url: res.data.url,
+                ossId: res.data.ossId
+            });
             uploadedSuccessfully();
         } else {
             number.value--;
@@ -204,7 +214,7 @@
         let strs = "";
         separator = separator || ",";
         for (let i in list) {
-            if(undefined !== list[i].ossId && list[i].url.indexOf("blob:") !== 0) {
+            if (undefined !== list[i].ossId && list[i].url.indexOf("blob:") !== 0) {
                 strs += list[i].ossId + separator;
             }
         }
@@ -213,8 +223,8 @@
 </script>
 
 <style scoped lang="scss">
-  // .el-upload--picture-card 控制加号部分
-  :deep(.hide .el-upload--picture-card) {
-    display: none;
-  }
+    // .el-upload--picture-card 控制加号部分
+    :deep(.hide .el-upload--picture-card) {
+        display: none;
+    }
 </style>

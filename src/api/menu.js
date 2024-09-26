@@ -54,7 +54,7 @@ export const getRouters = () => {
                         "hidden": false,
                         "component": "order/index",
                         "meta": {
-                            "title": "商品列表",
+                            "title": "订单列表",
                             "icon": "job",
                             "noCache": false,
                             "link": null

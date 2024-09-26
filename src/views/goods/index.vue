@@ -52,7 +52,7 @@
             <el-table-column label="上架状态" align="center" key="publishStatus">
                 <template #default="scope">
                     <el-switch
-                            v-model="scope.row.activeStatus"
+                            v-model="scope.row.publishStatus"
                             active-value="1"
                             inactive-value="0"
                             @change="handleStatusChange(scope.row)"
@@ -68,7 +68,7 @@
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                 <template #default="scope">
                     <el-button link type="primary" @click="handleUpdate(scope.row)"
-                               v-hasPermi="['merchant:news:edit']">{{scope.row.status == '0' ? '修改' : '查看'}}
+                               v-hasPermi="['merchant:news:edit']">{{scope.row.publishStatus == '0' ? '修改' : '查看'}}
                     </el-button>
                 </template>
             </el-table-column>
@@ -77,122 +77,53 @@
         <pagination
                 v-show="total > 0"
                 :total="total"
-                v-model:page="queryParams.pageNum"
+                v-model:page="queryParams.pageNo"
                 v-model:limit="queryParams.pageSize"
                 @pagination="getList"
         />
 
         <el-dialog :title="title" v-model="open" width="1280px" append-to-body>
             <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
-                <el-form-item label="活动名称" prop="GoodsName">
-                    <el-input v-model="form.GoodsName" placeholder="请输入活动名称" style="width: 200px;"/>
+                <el-form-item label="商品名称" prop="name">
+                    <el-input v-model="form.name" placeholder="请输入商品名称" style="width: 200px;"/>
                 </el-form-item>
-                <el-form-item label="主办方" prop="organizer">
-                    <el-input
-                            v-model="form.organizer"
-                            placeholder="主办方"
-                            style="width: 200px"
-                    />
+                <el-form-item label="品牌名称" prop="brandName">
+                    <el-input v-model="form.brandName" placeholder="请输入品牌名称" style="width: 200px;"/>
                 </el-form-item>
-                <el-form-item label="承办方" prop="undertaker">
-                    <el-input
-                            v-model="form.undertaker"
-                            placeholder="承办方"
-                            style="width: 200px"
-                    />
+                <el-form-item label="商品分类名称" prop="productCategoryName">
+                    <el-input v-model="form.productCategoryName" placeholder="请输入商品分类名称" style="width: 200px;"/>
+                </el-form-item>
+                <el-form-item label="商品库存" prop="kc">
+                    <el-input v-model="form.kc" type="number" placeholder="请输入商品库存" style="width: 200px;"/>
+                </el-form-item>
+                <el-form-item label="商品价格" prop="price">
+                    <el-input v-model="form.price" type="number" placeholder="请输入商品价格" style="width: 200px;"/>
+                </el-form-item>
+                <el-form-item label="商品单位" prop="unit">
+                    <el-input v-model="form.unit" placeholder="请输入商品单位" style="width: 200px;"/>
+                </el-form-item>
+                <el-form-item label="商品重量" prop="weight">
+                    <el-input v-model="form.weight" placeholder="请输入商品重量" style="width: 200px;"/>
                 </el-form-item>
                 <el-form-item label="排序" prop="sort">
                     <el-input v-model="form.sort" type="number" placeholder="请输入排序" style="width: 200px;"/>
                 </el-form-item>
-                <el-form-item label="关联赞助活动（非必填）" prop="relatedGoodsId">
-                    <el-select filterable v-model="form.relatedGoodsId" placeholder="活动" clearable style="width: 200px">
-                        <el-option
-                                v-for="dict in listGoodsAllData"
-                                :key="dict.GoodsId"
-                                :label="dict.GoodsName"
-                                :value="dict.GoodsId"
-                        />
-                    </el-select>
+                <el-form-item label="商品详情" prop="detailHtml">
+                    <Tinymce v-if="open" ref="editor" v-model="form.detailHtml"/>
                 </el-form-item>
-                <el-form-item label="报名方式" prop="signUpType">
-                    <el-radio-group v-model="form.signUpType" @change="onRadioChange">
-                        <el-radio label="1" size="large">免费</el-radio>
-                        <el-radio label="2" size="large">付费</el-radio>
-                    </el-radio-group>
+                <el-form-item label="移动端商品详情" prop="detailMobileHtml">
+                    <Tinymce v-if="open" ref="editor" v-model="form.detailMobileHtml"/>
                 </el-form-item>
-                <el-form-item label="付费金额" prop="payAmount" v-if="form.signUpType == '2'">
-                    <el-input v-model="form.payAmount" type="number" placeholder="请输入付费金额" style="width: 200px;"/>
+                <el-form-item label="主图" prop="picModels">
+                    <imageUpload v-model="form.picModels" :isShowTip="false" :fileSize="false" :limit="1"/>
                 </el-form-item>
-                <el-form-item label="活动级别" prop="GoodsLevel">
-                    <el-select v-model="form.GoodsLevel" placeholder="活动级别" clearable style="width: 200px">
-                        <el-option
-                                label="全部"
-                                value=""
-                        />
-                        <el-option
-                                label="省级"
-                                value="1"
-                        />
-                        <el-option
-                                label="市级"
-                                value="2"
-                        />
-                        <el-option
-                                label="区县级"
-                                value="3"
-                        />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="报名开始时间" prop="signUpStartTime">
-                    <el-date-picker
-                            v-model="form.signUpStartTime"
-                            type="datetime"
-                            placeholder="报名开始时间"
-                            style="width: 100%"
-                            value-format="YYYY-MM-DD HH:mm:ss"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="报名结束时间" prop="signUpEndTime">
-                    <el-date-picker
-                            v-model="form.signUpEndTime"
-                            type="datetime"
-                            placeholder="报名结束时间"
-                            style="width: 100%"
-                            value-format="YYYY-MM-DD HH:mm:ss"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="活动开始时间" prop="GoodsStartTime">
-                    <el-date-picker
-                            v-model="form.GoodsStartTime"
-                            type="datetime"
-                            placeholder="报名开始时间"
-                            style="width: 100%"
-                            value-format="YYYY-MM-DD HH:mm:ss"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="活动结束时间" prop="GoodsEndTime">
-                    <el-date-picker
-                            v-model="form.GoodsEndTime"
-                            type="datetime"
-                            placeholder="活动结束时间"
-                            style="width: 100%"
-                            value-format="YYYY-MM-DD HH:mm:ss"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="活动介绍" prop="GoodsIntro">
-                    <Tinymce v-if="open" ref="editor" v-model="form.GoodsIntro"/>
-                </el-form-item>
-                <el-form-item label="封面图" prop="imgModels">
-                    <imageUpload v-model="form.imgModels" :isShowTip="false" :fileSize="false" :limit="1"/>
+                <el-form-item label="画册图片" prop="albumPicsModels">
+                    <imageUpload v-model="form.albumPicsModels" :isShowTip="false" :fileSize="false" :limit="5"/>
                 </el-form-item>
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button type="primary" @click="submitForm" v-if="!form.GoodsId || form.status != '1'">确 定
+                    <el-button type="primary" @click="submitForm" v-if="!form.id || form.publishStatus != '1'">确 定
                     </el-button>
                     <el-button @click="cancel">取 消</el-button>
                 </div>
@@ -228,39 +159,27 @@
     const data = reactive({
         form: {},
         queryParams: {
-            pageNum: 1,
+            pageNo: 1,
             pageSize: 10,
-            GoodsType: '2'
+            isAdmin: '1'
         },
         rules: {
-            GoodsName: [{required: true, message: "活动名称不能为空", trigger: "blur"}],
+            name: [{required: true, message: "商品名称不能为空", trigger: "blur"}],
             sort: [{required: true, message: "排序不能为空", trigger: "blur"}],
-            signUpType: [{required: true, message: "报名方式不能为空", trigger: "change"}],
-            GoodsLevel: [{required: true, message: "活动级别不能为空", trigger: "change"}],
-            signUpStartTime: [{required: true, message: "报名开始时间不能为空", trigger: "change"}],
-            signUpEndTime: [{required: true, message: "报名结束时间不能为空", trigger: "change"}],
-            GoodsStartTime: [{required: true, message: "活动开始时间不能为空", trigger: "change"}],
-            GoodsEndTime: [{required: true, message: "活动结束时间不能为空", trigger: "change"}],
-            sponsorIntro: [{required: true, message: "赞助介绍不能为空", trigger: "blur"}],
-            GoodsIntro: [{required: true, message: "活动介绍不能为空", trigger: "blur"}],
-            imgModels: [{required: true, message: "封面图不能为空", trigger: "change"}],
-            payAmount: [{required: true, message: "付费金额不能为空", trigger: "blur"}],
+            kc: [{required: true, message: "库存不能为空", trigger: "blur"}],
+            price: [{required: true, message: "商品价格不能为空", trigger: "blur"}],
+            unit: [{required: true, message: "商品单位不能为空", trigger: "blur"}],
+            weight: [{required: true, message: "商品重量不能为空", trigger: "change"}],
+            detailHtml: [{required: true, message: "商品详情不能为空", trigger: "change"}],
+            // pic: [{required: true, message: "主图不能为空", trigger: "change"}],
         },
     });
 
     const {queryParams, form, rules} = toRefs(data);
+    
+    
 
-    function onRadioChange() {
-        form.value.payAmount = ''
-    }
-
-    function handleExport() {
-        proxy.download("Goods/info/export", {
-            ...queryParams.value,
-        }, `活动信息_${new Date().getTime()}.xlsx`);
-    }
-
-    /** 查询广告列表 */
+    /** 查询列表 */
     function getList() {
         loading.value = true;
         listGoods(queryParams.value).then(response => {
@@ -279,15 +198,13 @@
     /** 表单重置 */
     function reset() {
         form.value = {
-            status: "1",
-            conditionType: '1'
         };
         proxy.resetForm("formRef");
     }
 
     /** 搜索按钮操作 */
     function handleQuery() {
-        queryParams.value.pageNum = 1;
+        queryParams.value.pageNo = 1;
         getList();
     }
 
@@ -299,7 +216,7 @@
 
     /** 多选框选中数据 */
     function handleSelectionChange(selection) {
-        ids.value = selection.map(item => item.GoodsId);
+        ids.value = selection.map(item => item.id);
         single.value = selection.length != 1;
         multiple.value = !selection.length;
     }
@@ -314,7 +231,7 @@
     /**修改按钮操作 */
     function handleUpdate(row) {
         reset();
-        const id = row.GoodsId || ids.value;
+        const id = row.id || ids.value;
         getGoods(id).then(response => {
             form.value = response.data;
             open.value = true;
@@ -328,9 +245,9 @@
             if (valid) {
                 form.value = {
                     ...form.value,
-                    GoodsType: '2'
+                    isAdmin : 1
                 }
-                if (form.value.GoodsId) {
+                if (form.value.id) {
                     updateGoods(form.value).then(response => {
                         proxy.$modal.msgSuccess("修改成功");
                         open.value = false;
@@ -351,23 +268,16 @@
 
     /** 上下架状态修改  */
     function handleStatusChange(row) {
-        let text = row.status === "0" ? "下架" : "上架";
+        let text = row.publishStatus === "0" ? "下架" : "上架";
         proxy.$modal.confirm('确认要"' + text + '"?').then(function () {
-            return changeGoodsStatus(row.id,row.publishStatus === "0" ? "1" : "0");
+            return changeGoodsStatus(row.id,row.publishStatus);
         }).then(() => {
             proxy.$modal.msgSuccess(text + "成功");
         }).catch(function () {
-            row.status = row.status === "0" ? "1" : "0";
+            row.publishStatus = row.publishStatus === "0" ? "1" : "0";
         });
     }
 
     getList();
 
-    function getListGoodsAll() {
-        listGoodsAll({GoodsType: '1'}).then(response => {
-            listGoodsAllData.value = response.data
-        });
-    }
-
-    getListGoodsAll()
 </script>

@@ -1,79 +1,64 @@
 <template>
     <div class="app-container">
         <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
-            <el-form-item label="活动名称" prop="eventsName">
+            <el-form-item label="会员ID" prop="memberId">
                 <el-input
-                        v-model="queryParams.eventsName"
-                        placeholder="活动名称"
+                        v-model="queryParams.memberId"
+                        placeholder="会员ID"
                         clearable
                         style="width: 200px"
                         @keyup.enter="handleQuery"
                 />
             </el-form-item>
-            <el-form-item label="主办方" prop="organizer">
-                <el-input
-                        v-model="queryParams.organizer"
-                        placeholder="主办方"
-                        clearable
-                        style="width: 200px"
-                        @keyup.enter="handleQuery"
-                />
-            </el-form-item>
-            <el-form-item label="活动级别" prop="eventsLevel">
-                <el-select v-model="queryParams.eventsLevel" placeholder="活动级别" clearable style="width: 200px">
+            <el-form-item label="支付方式" prop="payType">
+                <el-select v-model="queryParams.payType" placeholder="支付方式" clearable style="width: 200px">
                     <el-option
                             label="全部"
                             value=""
                     />
                     <el-option
-                            label="省级"
-                            value="1"
-                    />
-                    <el-option
-                            label="市级"
-                            value="2"
-                    />
-                    <el-option
-                            label="区县级"
-                            value="3"
-                    />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="活动状态" prop="activeStatus">
-                <el-select v-model="queryParams.activeStatus" placeholder="活动状态" clearable style="width: 200px">
-                    <el-option
-                            label="未开始"
+                            label="未支付"
                             value="0"
                     />
                     <el-option
-                            label="进行中"
-                            value="2"
-                    />
-                    <el-option
-                            label="已结束"
-                            value="1"
-                    />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="报名方式" prop="signUpType">
-                <el-select v-model="queryParams.signUpType" placeholder="报名方式" clearable style="width: 200px">
-                    <el-option
-                            label="免费"
+                            label="支付宝"
                             value="1"
                     />
                     <el-option
-                            label="付费"
+                            label="微信"
                             value="2"
                     />
                 </el-select>
             </el-form-item>
-            <el-form-item label="状态" prop="status">
-                <el-select v-model="queryParams.status" placeholder="状态" clearable style="width: 200px">
+            <el-form-item label="订单状态" prop="status">
+                <el-select v-model="queryParams.status" placeholder="订单状态" clearable style="width: 200px">
                     <el-option
-                            v-for="dict in up_down_status"
-                            :key="dict.value"
-                            :label="dict.label"
-                            :value="dict.value"
+                            label="全部"
+                            value=""
+                    />
+                    <el-option
+                            label="待付款"
+                            value="0"
+                    />
+                    <el-option
+                            label="待发货"
+                            value="1"
+                    />
+                    <el-option
+                            label="已发货"
+                            value="2"
+                    />
+                    <el-option
+                            label="已完成"
+                            value="3"
+                    />
+                    <el-option
+                            label="已关闭"
+                            value="4"
+                    />
+                    <el-option
+                            label="无效订单"
+                            value="5"
                     />
                 </el-select>
             </el-form-item>
@@ -84,80 +69,61 @@
         </el-form>
 
         <el-row :gutter="10" class="mb8">
-            <el-col :span="1.5">
-                <el-button
-                        type="primary"
-                        plain
-                        @click="handleAdd"
-                        v-hasPermi="['merchant:events:sponsor:add']"
-                >发布活动
-                </el-button>
-            </el-col>
-            <el-col :span="1.5">
-                <el-button
-                        type="warning"
-                        plain
-                        @click="handleExport"
-                        v-hasPermi="['merchant:events:sponsor:export']"
-                >导出
-                </el-button>
-            </el-col>
             <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
 
         <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
-            <el-table-column label="活动名称" align="center" prop="eventsName"/>
-            <el-table-column label="活动级别" align="center" prop="eventsLevel">
+            <el-table-column label="订单编号" align="center" prop="orderSn"/>
+            <el-table-column label="支付id" align="center" prop="payId"/>
+            <el-table-column label="用户账号" align="center" prop="memberUsername"/>
+            <el-table-column label="订单总金额" align="center" prop="totalAmount"/>
+            <el-table-column label="采购价" align="center" prop="purchasePrice"/>
+            <el-table-column label="应付金额" align="center" prop="payAmount"/>
+            <el-table-column label="运费金额" align="center" prop="freightAmount"/>
+            <el-table-column label="支付方式" align="center" prop="payType">
                 <template #default="scope">
-                    <span>{{ scope.row.eventsLevel == '1' ? '省级' : scope.row.eventsLevel == '2' ? '市级' : '区县级' }}</span>
+                    <span>{{ scope.row.payType == '1' ? '支付宝' : scope.row.payType == '2' ? '微信' : '未支付' }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="报名时间" align="center" prop="eventsStartTime">
+            <el-table-column label="订单状态" align="center" prop="status">
                 <template #default="scope">
-                    <span>{{ scope.row.signUpStartTime }} - {{ scope.row.signUpEndTime }}</span>
+                    <span>{{ scope.row.status == '0' ? '待付款' : scope.row.status == '1' ? '待发货' : scope.row.status == '2' ? '已发货' : scope.row.status == '3' ? '已完成' :scope.row.status == '4' ? '已关闭' :'无效订单' }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="活动时间" align="center" prop="eventsStartTime">
+            <el-table-column label="退款状态" align="center" prop="aftersaleStatus">
                 <template #default="scope">
-                    <span>{{ scope.row.eventsStartTime }} - {{ scope.row.eventsEndTime }}</span>
+                    <span>{{ scope.row.aftersaleStatus == '1' ? '无售后或售后关闭' : scope.row.aftersaleStatus == '2' ? '售后处理中' : scope.row.aftersaleStatus == '3' ? '退款中' : '退款成功' }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="报名方式" align="center" prop="signUpType">
+            <el-table-column label="确认收货状态" align="center" prop="confirmStatus">
                 <template #default="scope">
-                    <span>{{ scope.row.signUpType == '1' ? '免费' : '付费' }}</span>
+                    <span>{{ scope.row.confirmStatus == '0' ? '未确认' : '已确认' }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="报名金额" align="center" prop="payAmount">
+            <el-table-column label="支付时间" align="center" prop="paymentTime">
                 <template #default="scope">
-                    <span>{{ scope.row.payAmount }}￥</span>
+                    <span>{{ scope.row.paymentTime }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="活动状态" align="center" prop="activeStatus">
+            <el-table-column label="发货时间" align="center" prop="deliveryTime">
                 <template #default="scope">
-                    <span>{{ scope.row.activeStatus == '0' ? '未开始' : scope.row.activeStatus == '1' ? '进行中' : '已结束' }}</span>
+                    <span>{{ scope.row.deliveryTime }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="主办方" align="center" prop="organizer"/>
-            <el-table-column label="关联赞助活动" align="center" prop="relatedEventsName"/>
-            <el-table-column label="排序" align="center" prop="sort"/>
-            <el-table-column label="上架状态" align="center" key="status">
+            <el-table-column label="更新时间" align="center" prop="updateTime">
                 <template #default="scope">
-                    <!--<dict-tag :options="up_down_status" :value="scope.row.status"/>-->
-                    <el-switch
-                            v-model="scope.row.status"
-                            active-value="1"
-                            inactive-value="0"
-                            @change="handleStatusChange(scope.row)"
-                    ></el-switch>
+                    <span>{{ scope.row.updateTime }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作人" align="center" prop="updateBy">
+                <template #default="scope">
+                    <span>{{ scope.row.updateBy }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                 <template #default="scope">
                     <el-button link type="primary" @click="handleUpdate(scope.row)"
-                               v-hasPermi="['merchant:news:edit']">{{scope.row.status == '0' ? '修改' : '查看'}}
-                    </el-button>
-                    <el-button link type="primary" @click="handleDelete(scope.row)"
-                               v-hasPermi="['merchant:news:remove']">删除
+                               v-hasPermi="['merchant:news:edit']">修改
                     </el-button>
                 </template>
             </el-table-column>
@@ -166,122 +132,172 @@
         <pagination
                 v-show="total > 0"
                 :total="total"
-                v-model:page="queryParams.pageNum"
+                v-model:page="queryParams.pageNo"
                 v-model:limit="queryParams.pageSize"
                 @pagination="getList"
         />
 
         <el-dialog :title="title" v-model="open" width="1280px" append-to-body>
             <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
-                <el-form-item label="活动名称" prop="eventsName">
-                    <el-input v-model="form.eventsName" placeholder="请输入活动名称" style="width: 200px;"/>
+                <el-form-item label="订单编号" prop="orderSn">
+                    <el-input v-model="form.orderSn" placeholder="订单编号" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
-                <el-form-item label="主办方" prop="organizer">
-                    <el-input
-                            v-model="form.organizer"
-                            placeholder="主办方"
-                            style="width: 200px"
-                    />
+                <el-form-item label="支付ID" prop="payId">
+                    <el-input v-model="form.payId" placeholder="支付id" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
-                <el-form-item label="承办方" prop="undertaker">
-                    <el-input
-                            v-model="form.undertaker"
-                            placeholder="承办方"
-                            style="width: 200px"
-                    />
+                <el-form-item label="会员ID" prop="memberId">
+                    <el-input v-model="form.memberId" placeholder="会员ID" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
-                <el-form-item label="排序" prop="sort">
-                    <el-input v-model="form.sort" type="number" placeholder="请输入排序" style="width: 200px;"/>
+                <el-form-item label="用户账号" prop="memberUsername">
+                    <el-input v-model="form.memberUsername" placeholder="用户账号" style="width: 280px;" :disabled="form.id"/>
                 </el-form-item>
-                <el-form-item label="关联赞助活动（非必填）" prop="relatedEventsId">
-                    <el-select filterable v-model="form.relatedEventsId" placeholder="活动" clearable style="width: 200px">
+                <el-form-item label="订单总金额" prop="totalAmount">
+                    <el-input v-model="form.totalAmount" placeholder="订单总金额" style="width: 280px;" :disabled="form.id"/>
+                </el-form-item>
+                <el-form-item label="采购价" prop="purchasePrice">
+                    <el-input v-model="form.purchasePrice" placeholder="采购价" style="width: 280px;" :disabled="form.id"/>
+                </el-form-item>
+                <el-form-item label="应付金额" prop="payAmount">
+                    <el-input v-model="form.payAmount" placeholder="应付金额" style="width: 280px;" :disabled="form.id"/>
+                </el-form-item>
+                <el-form-item label="运费金额" prop="freightAmount">
+                    <el-input v-model="form.freightAmount" placeholder="运费金额" style="width: 280px;" :disabled="form.id"/>
+                </el-form-item>
+                <el-form-item label="支付方式" prop="payType">
+                    <el-select v-model="form.payType" placeholder="支付方式" clearable style="width: 280px" :disabled="form.id">
                         <el-option
-                                v-for="dict in listEventsAllData"
-                                :key="dict.eventsId"
-                                :label="dict.eventsName"
-                                :value="dict.eventsId"
-                        />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="报名方式" prop="signUpType">
-                    <el-radio-group v-model="form.signUpType" @change="onRadioChange">
-                        <el-radio label="1" size="large">免费</el-radio>
-                        <el-radio label="2" size="large">付费</el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="付费金额" prop="payAmount" v-if="form.signUpType == '2'">
-                    <el-input v-model="form.payAmount" type="number" placeholder="请输入付费金额" style="width: 200px;"/>
-                </el-form-item>
-                <el-form-item label="活动级别" prop="eventsLevel">
-                    <el-select v-model="form.eventsLevel" placeholder="活动级别" clearable style="width: 200px">
-                        <el-option
-                                label="全部"
-                                value=""
+                                label="未支付"
+                                value="0"
                         />
                         <el-option
-                                label="省级"
+                                label="支付宝"
                                 value="1"
                         />
                         <el-option
-                                label="市级"
+                                label="微信"
                                 value="2"
-                        />
-                        <el-option
-                                label="区县级"
-                                value="3"
                         />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="报名开始时间" prop="signUpStartTime">
+                <el-form-item label="订单状态" prop="status">
+                    <el-select v-model="form.status" placeholder="订单状态" clearable style="width: 280px">
+                        <el-option
+                                label="待付款"
+                                value="0"
+                        />
+                        <el-option
+                                label="待发货"
+                                value="1"
+                        />
+                        <el-option
+                                label="已发货"
+                                value="2"
+                        />
+                        <el-option
+                                label="已完成"
+                                value="3"
+                        />
+                        <el-option
+                                label="已关闭"
+                                value="4"
+                        />
+                        <el-option
+                                label="无效订单"
+                                value="5"
+                        />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="退款状态" prop="aftersaleStatus">
+                    <el-select v-model="form.aftersaleStatus" placeholder="退款状态" clearable style="width: 280px">
+                        <el-option
+                                label="无售后或售后关闭"
+                                value="1"
+                        />
+                        <el-option
+                                label="售后处理中"
+                                value="2"
+                        />
+                        <el-option
+                                label="退款中"
+                                value="3"
+                        />
+                        <el-option
+                                label="退款成功"
+                                value="4"
+                        />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="物流公司" prop="deliveryCompany">
+                    <el-input v-model="form.deliveryCompany" placeholder="物流公司" style="width: 280px;"/>
+                </el-form-item>
+                <el-form-item label="物流单号" prop="deliverySn">
+                    <el-input v-model="form.deliverySn" placeholder="物流单号" style="width: 280px;"/>
+                </el-form-item>
+                <el-form-item label="收货人姓名" prop="receiverName">
+                    <el-input v-model="form.receiverName" placeholder="收货人姓名" style="width: 280px;"/>
+                </el-form-item>
+                <el-form-item label="收货人电话" prop="receiverPhone">
+                    <el-input v-model="form.receiverPhone" placeholder="收货人电话" style="width: 280px;"/>
+                </el-form-item>
+                <el-form-item label="收货人邮编" prop="receiverPostCode">
+                    <el-input v-model="form.receiverPostCode" placeholder="收货人邮编" style="width: 280px;"/>
+                </el-form-item>
+                <el-form-item label="详细地址" prop="receiverDetailAddress">
+                    <el-input v-model="form.receiverDetailAddress" placeholder="详细地址" style="width: 280px;"/>
+                </el-form-item>
+                <el-form-item label="订单备注" prop="note">
+                    <el-input v-model="form.note" placeholder="订单备注" style="width: 280px;"/>
+                </el-form-item>
+                <el-form-item label="商家备注" prop="merchantNote">
+                    <el-input v-model="form.merchantNote" placeholder="商家备注" style="width: 280px;"/>
+                </el-form-item>
+                <el-form-item label="确认收货状态" prop="confirmStatus">
+                    <el-select v-model="form.confirmStatus" placeholder="确认收货状态" clearable style="width: 280px">
+                        <el-option
+                                label="未确认"
+                                value="0"
+                        />
+                        <el-option
+                                label="已确认"
+                                value="1"
+                        />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="支付时间" prop="paymentTime" :disabled="form.id">
                     <el-date-picker
-                            v-model="form.signUpStartTime"
+                            v-model="form.paymentTime"
                             type="datetime"
-                            placeholder="报名开始时间"
-                            style="width: 100%"
+                            placeholder="支付时间"
+                            style="width: 200px"
                             value-format="YYYY-MM-DD HH:mm:ss"
                     >
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="报名结束时间" prop="signUpEndTime">
+                <el-form-item label="发货时间" prop="deliveryTime">
                     <el-date-picker
-                            v-model="form.signUpEndTime"
+                            v-model="form.deliveryTime"
                             type="datetime"
-                            placeholder="报名结束时间"
-                            style="width: 100%"
+                            placeholder="发货时间"
+                            style="width: 200px"
                             value-format="YYYY-MM-DD HH:mm:ss"
                     >
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="活动开始时间" prop="eventsStartTime">
+                <el-form-item label="确认收货时间" prop="receiveTime">
                     <el-date-picker
-                            v-model="form.eventsStartTime"
+                            v-model="form.receiveTime"
                             type="datetime"
-                            placeholder="报名开始时间"
-                            style="width: 100%"
+                            placeholder="确认收货时间"
+                            style="width: 200px"
                             value-format="YYYY-MM-DD HH:mm:ss"
                     >
                     </el-date-picker>
-                </el-form-item>
-                <el-form-item label="活动结束时间" prop="eventsEndTime">
-                    <el-date-picker
-                            v-model="form.eventsEndTime"
-                            type="datetime"
-                            placeholder="活动结束时间"
-                            style="width: 100%"
-                            value-format="YYYY-MM-DD HH:mm:ss"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="活动介绍" prop="eventsIntro">
-                    <Tinymce v-if="open" ref="editor" v-model="form.eventsIntro"/>
-                </el-form-item>
-                <el-form-item label="封面图" prop="imgModels">
-                    <imageUpload v-model="form.imgModels" :isShowTip="false" :fileSize="false" :limit="1"/>
                 </el-form-item>
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button type="primary" @click="submitForm" v-if="!form.eventsId || form.status != '1'">确 定</el-button>
+                    <el-button type="primary" @click="submitForm">确 定
+                    </el-button>
                     <el-button @click="cancel">取 消</el-button>
                 </div>
             </template>
@@ -290,10 +306,9 @@
 </template>
 
 <script setup name="Notice">
-    import {addEvents, changeEventsStatus, delEvents, getEvents, listEvents, updateEvents, listEventsAll} from "@/api/merchant/sponsor";
+    import {addOrder, delOrder, getOrder, listOrder, updateOrder} from "@/api/order/index";
 
     const {proxy} = getCurrentInstance();
-    const {up_down_status, sys_advert_position_type, sys_advert_link_type} = proxy.useDict("up_down_status", "sys_advert_position_type", "sys_advert_link_type");
 
     const dataList = ref([]);
     const open = ref(false);
@@ -304,28 +319,16 @@
     const multiple = ref(true);
     const total = ref(0);
     const title = ref("");
-    const listEventsAllData = ref([]);
+    const listOrderAllData = ref([]);
 
     const data = reactive({
         form: {},
         queryParams: {
-            pageNum: 1,
-            pageSize: 10,
-            eventsType: '2'
+            pageNo: 1,
+            pageSize: 10
         },
         rules: {
-            eventsName: [{required: true, message: "活动名称不能为空", trigger: "blur"}],
-            sort: [{required: true, message: "排序不能为空", trigger: "blur"}],
-            signUpType: [{required: true, message: "报名方式不能为空", trigger: "change"}],
-            eventsLevel: [{required: true, message: "活动级别不能为空", trigger: "change"}],
-            signUpStartTime: [{required: true, message: "报名开始时间不能为空", trigger: "change"}],
-            signUpEndTime: [{required: true, message: "报名结束时间不能为空", trigger: "change"}],
-            eventsStartTime: [{required: true, message: "活动开始时间不能为空", trigger: "change"}],
-            eventsEndTime: [{required: true, message: "活动结束时间不能为空", trigger: "change"}],
-            sponsorIntro: [{required: true, message: "赞助介绍不能为空", trigger: "blur"}],
-            eventsIntro: [{required: true, message: "活动介绍不能为空", trigger: "blur"}],
-            imgModels: [{required: true, message: "封面图不能为空", trigger: "change"}],
-            payAmount: [{required: true, message: "付费金额不能为空", trigger: "blur"}],
+
         },
     });
 
@@ -334,18 +337,14 @@
     function onRadioChange() {
         form.value.payAmount = ''
     }
-    function handleExport() {
-        proxy.download("events/info/export", {
-            ...queryParams.value,
-        }, `活动信息_${new Date().getTime()}.xlsx`);
-    }
+
 
     /** 查询广告列表 */
     function getList() {
         loading.value = true;
-        listEvents(queryParams.value).then(response => {
-            dataList.value = response.rows;
-            total.value = response.total;
+        listOrder(queryParams.value).then(response => {
+            dataList.value = response.data.records;
+            total.value = response.data.total;
             loading.value = false;
         });
     }
@@ -367,7 +366,7 @@
 
     /** 搜索按钮操作 */
     function handleQuery() {
-        queryParams.value.pageNum = 1;
+        queryParams.value.pageNo = 1;
         getList();
     }
 
@@ -379,7 +378,7 @@
 
     /** 多选框选中数据 */
     function handleSelectionChange(selection) {
-        ids.value = selection.map(item => item.eventsId);
+        ids.value = selection.map(item => item.id);
         single.value = selection.length != 1;
         multiple.value = !selection.length;
     }
@@ -394,8 +393,8 @@
     /**修改按钮操作 */
     function handleUpdate(row) {
         reset();
-        const id = row.eventsId || ids.value;
-        getEvents(id).then(response => {
+        const id = row.id || ids.value;
+        getOrder(id).then(response => {
             form.value = response.data;
             open.value = true;
             title.value = row.status == '1' ? '查看' : '修改';
@@ -408,16 +407,16 @@
             if (valid) {
                 form.value = {
                     ...form.value,
-                    eventsType: '2'
+                    OrderType: '2'
                 }
-                if (form.value.eventsId) {
-                    updateEvents(form.value).then(response => {
+                if (form.value.id) {
+                    updateOrder(form.value).then(response => {
                         proxy.$modal.msgSuccess("修改成功");
                         open.value = false;
                         getList();
                     });
                 } else {
-                    addEvents(form.value).then(response => {
+                    addOrder(form.value).then(response => {
                         proxy.$modal.msgSuccess("新增成功");
                         open.value = false;
                         getList();
@@ -429,9 +428,9 @@
 
     /** 删除按钮操作 */
     function handleDelete(row) {
-        const id = row.eventsId || ids.value
+        const id = row.OrderId || ids.value
         proxy.$modal.confirm('是否确认删除？').then(function () {
-            return delEvents(id);
+            return delOrder(id);
         }).then(() => {
             getList();
             proxy.$modal.msgSuccess("删除成功");
@@ -444,7 +443,7 @@
     function handleStatusChange(row) {
         let text = row.status === "0" ? "下架" : "上架";
         proxy.$modal.confirm('确认要"' + text + '"?').then(function () {
-            return changeEventsStatus(row.eventsId);
+            return changeOrderStatus(row.OrderId);
         }).then(() => {
             proxy.$modal.msgSuccess(text + "成功");
         }).catch(function () {
@@ -453,11 +452,4 @@
     }
 
     getList();
-
-    function getListEventsAll() {
-        listEventsAll({eventsType: '1'}).then(response => {
-            listEventsAllData.value = response.data
-        });
-    }
-    getListEventsAll()
 </script>

@@ -20,17 +20,17 @@ export function login(username, password, code, uuid) {
         return new Promise((resolve) => {
             setTimeout(() => {
                 resolve(response);
-            }, 1000); // 模拟网络延迟
+            }, 1); // 模拟网络延迟
         });
     } else {
         // 返回一个Promise，模拟登录失败
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 reject({
-                    code: 401, // HTTP状态码
+                    code: 500, // HTTP状态码
                     msg: '用户名或密码错误' // 登录失败的消息
                 });
-            }, 1000); // 模拟网络延迟
+            }, 1); // 模拟网络延迟
         });
     }
 }
@@ -73,7 +73,7 @@ export function getInfo() {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve(response);
-        }, 1000); // 模拟网络延迟
+        }, 1); // 模拟网络延迟
     });
 }
 
@@ -89,7 +89,7 @@ export function logout() {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve(response);
-        }, 1000); // 模拟网络延迟
+        }, 1); // 模拟网络延迟
     });
 }
 
@@ -105,6 +105,6 @@ export function getCodeImg() {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve(response);
-        }, 1000); // 模拟网络延迟
+        }, 1); // 模拟网络延迟
     });
 }

@@ -11,10 +11,18 @@ export function listOss(query) {
 
 // 查询OSS对象基于id串
 export function listByIds(ossId) {
-  return request({
-    url: '/resource/oss/listByIds/' + ossId,
-    method: 'get'
-  })
+    const response = {
+        code: 200, // HTTP状态码
+        data: null,
+        msg: ''
+    };
+
+    // 返回一个Promise，模拟异步请求
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(response);
+        }, 1); // 模拟网络延迟
+    });
 }
 
 // 删除OSS对象存储
