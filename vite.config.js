@@ -31,7 +31,7 @@ export default defineConfig(({ mode, command }) => {
       proxy: {
         // https://cn.vitejs.dev/config/#server-proxy
         '/dev-api': {
-          target: 'http://127.0.0.1:7979',
+          target: 'http://114.132.245.12:7979',
           // target: 'http://192.168.0.99:20231',
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/dev-api/, '')
